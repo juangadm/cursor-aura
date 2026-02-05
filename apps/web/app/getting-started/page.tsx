@@ -75,73 +75,18 @@ export default function GettingStarted() {
     <>
       <Aura color={themeColor} />
 
-      {/* Fixed Navigation with Theme Selector */}
-      <nav style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        padding: '12px 24px',
-        background: 'rgba(250, 250, 250, 0.8)',
-        backdropFilter: 'blur(8px)',
-      }}>
-        <div style={{ display: 'flex', gap: '2px' }}>
-          {THEMES.map(({ name, color }) => {
-            const isActive = theme === name
-            const isHovered = hoveredTheme === name
-
-            return (
-              <button
-                key={name}
-                onClick={() => setTheme(name)}
-                onMouseEnter={() => setHoveredTheme(name)}
-                onMouseLeave={() => setHoveredTheme(null)}
-                style={{
-                  background: isActive
-                    ? `rgba(${hexToRgb(color)}, 0.15)`
-                    : isHovered
-                      ? `rgba(${hexToRgb(color)}, 0.08)`
-                      : 'rgba(30, 30, 30, 0.05)',
-                  border: isActive ? `1px solid ${color}` : '1px solid rgba(30, 30, 30, 0.08)',
-                  borderRadius: '2px',
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  fontWeight: '300',
-                  letterSpacing: '-0.3px',
-                  lineHeight: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  color: isHovered ? color : (isActive ? color : 'rgb(30, 30, 30)'),
-                  fontFamily: 'monospace',
-                }}
-                aria-label={`Switch to ${name} theme`}
-              >
-                <span style={{ color }}>■</span>
-                <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
-              </button>
-            )
-          })}
-        </div>
-      </nav>
-
       <div style={{
         minHeight: '100vh',
         display: 'grid',
         gridTemplateColumns: isMobile ? '1fr' : '240px 1fr',
         background: '#fafafa',
-        paddingTop: '48px',
       }}>
         {/* Left Sidebar */}
         {!isMobile && (
           <aside style={{
             position: 'sticky',
-            top: '48px',
-            height: 'calc(100vh - 48px)',
+            top: 0,
+            height: '100vh',
             borderRight: '1px solid var(--border)',
             padding: '24px',
             display: 'flex',
@@ -230,10 +175,58 @@ export default function GettingStarted() {
               fontSize: '16px',
               color: 'var(--muted)',
               lineHeight: '1.7',
-              marginBottom: '48px',
+              marginBottom: '12px',
             }}>
               Aura adds themed drop shadows to your cursor. The shadow color updates automatically when your theme changes.
             </p>
+            <p style={{
+              fontSize: '13px',
+              color: 'var(--muted)',
+              marginBottom: '20px',
+              lineHeight: '1.5',
+            }}>
+              Still in beta. Works best in Chrome and Chromium-based browsers. Safari support is improving.
+            </p>
+
+            {/* Theme color selector */}
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '48px', flexWrap: 'wrap' }}>
+              {THEMES.map(({ name, color }) => {
+                const isActive = theme === name
+                const isHovered = hoveredTheme === name
+
+                return (
+                  <button
+                    key={name}
+                    onClick={() => setTheme(name)}
+                    onMouseEnter={() => setHoveredTheme(name)}
+                    onMouseLeave={() => setHoveredTheme(null)}
+                    style={{
+                      background: isActive
+                        ? `rgba(${hexToRgb(color)}, 0.15)`
+                        : isHovered
+                          ? `rgba(${hexToRgb(color)}, 0.08)`
+                          : 'rgba(30, 30, 30, 0.05)',
+                      border: isActive ? `1px solid ${color}` : '1px solid rgba(30, 30, 30, 0.08)',
+                      borderRadius: '2px',
+                      padding: '4px 8px',
+                      fontSize: '12px',
+                      fontWeight: '300',
+                      letterSpacing: '-0.3px',
+                      lineHeight: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      color: isHovered ? color : (isActive ? color : 'rgb(30, 30, 30)'),
+                      fontFamily: 'monospace',
+                    }}
+                    aria-label={`Switch to ${name} theme`}
+                  >
+                    <span style={{ color }}>■</span>
+                    <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
+                  </button>
+                )
+              })}
+            </div>
 
             {/* Installation */}
             <section id="installation" style={{ marginBottom: '48px' }}>
@@ -387,7 +380,7 @@ export default function App() {
               width: '160px',
               flexShrink: 0,
               position: 'sticky',
-              top: '112px',
+              top: '64px',
               height: 'fit-content',
             }}>
               <h4 style={{
@@ -440,6 +433,16 @@ export default function App() {
           style={{ color: 'var(--foreground)', fontWeight: '500' }}
         >
           Juan Gabriel
+        </a>
+        {' · '}
+        Cursor inspired by{' '}
+        <a
+          href="https://aresluna.org/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'var(--foreground)', fontWeight: '500' }}
+        >
+          Marcin Wichary
         </a>
       </footer>
     </>

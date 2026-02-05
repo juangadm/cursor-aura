@@ -122,9 +122,17 @@ export default function Home() {
             <p style={{
               fontSize: '20px',
               color: 'var(--muted)',
-              marginBottom: '24px',
+              marginBottom: '12px',
             }}>
               Themed cursor shadows for the web.
+            </p>
+            <p style={{
+              fontSize: '13px',
+              color: 'var(--muted)',
+              marginBottom: '24px',
+              lineHeight: '1.5',
+            }}>
+              Still in beta. Works best in Chrome and Chromium-based browsers. Safari support is improving.
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <Link
@@ -436,7 +444,7 @@ export default function Home() {
               lineHeight: '1.7',
               marginBottom: '20px',
             }}>
-              Aura generates SVG cursors with baked-in shadows and applies them via CSS custom properties.
+              Aura generates custom SVG cursors based on macOS designs with baked-in colored shadows, then applies them via CSS custom properties. No runtime overhead &mdash; just static CSS after the initial render.
             </p>
             <ul style={{
               listStyle: 'none',
@@ -501,15 +509,16 @@ export default function Home() {
               color: 'var(--muted)',
               marginBottom: '12px',
             }}>
-              Not a developer? Copy this prompt into Claude Code, Cursor, or Codex:
+              Or paste this into Claude Code, Cursor, or any AI coding tool:
             </p>
-            <CodeBlock>{`Add Aura cursor shadows to my website.
-Use the color ${themeColor} for the shadow.
+            <CodeBlock>{`Install the cursor-aura npm package and add it to my app.
+It replaces the default cursor with a themed SVG cursor that has a colored drop shadow.
 
-Note: Aura automatically overrides existing cursor styles.
-No code changes needed besides adding the component.
+npm install cursor-aura
 
-Install: npm install cursor-aura
+For React: import { Aura } from 'cursor-aura' and render <Aura color="${themeColor}" /> at the root.
+For vanilla JS: import { AuraVanilla as Aura } from 'cursor-aura/vanilla' and call Aura.init({ color: '${themeColor}' }).
+
 Docs: https://aura.juangabriel.xyz/getting-started`}</CodeBlock>
           </div>
         </main>
@@ -535,6 +544,16 @@ Docs: https://aura.juangabriel.xyz/getting-started`}</CodeBlock>
               style={{ color: 'var(--foreground)', fontWeight: '500' }}
             >
               Juan Gabriel
+            </a>
+            {' · '}
+            Cursor inspired by{' '}
+            <a
+              href="https://aresluna.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--foreground)', fontWeight: '500' }}
+            >
+              Marcin Wichary
             </a>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
