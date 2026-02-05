@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" shape-rendering="crispEdges">
-  <!-- Shadow (black, offset 2 pixels on grid) -->
-  <g fill="#000">
+  <rect width="512" height="512" fill="#000"/>
+  <!-- Shadow (dark gray so it's visible on black bg) -->
+  <g fill="#555">
     <rect x="192" y="144" width="16" height="16"/>
     <rect x="192" y="160" width="32" height="16"/>
     <rect x="192" y="176" width="48" height="16"/>
