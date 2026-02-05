@@ -25,6 +25,7 @@ const hexToRgb = (hex: string): string => {
 export default function Home() {
   const [theme, setTheme] = useState<Theme>('black')
   const [hoveredTheme, setHoveredTheme] = useState<Theme | null>(null)
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null)
   const [dragItems, setDragItems] = useState(['Drag me →', '← Drag me'])
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
 
@@ -145,7 +146,7 @@ export default function Home() {
                         boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
                         border: showColor ? `1px solid ${color}` : '1px solid #e5e5e5',
                         borderRadius: '6px',
-                        padding: '6px 12px',
+                        padding: '8px 16px',
                         fontSize: '13px',
                         fontFamily: 'var(--font-mono)',
                         display: 'flex',
@@ -182,15 +183,17 @@ export default function Home() {
               </p>
               <div style={{ marginTop: '16px' }}>
                 <button
+                  onMouseEnter={() => setHoveredButton('hover')}
+                  onMouseLeave={() => setHoveredButton(null)}
                   style={{
                     backgroundColor: 'rgb(253, 253, 253)',
                     boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
-                    border: '1px solid #e5e5e5',
+                    border: hoveredButton === 'hover' ? `1px solid ${themeColor}` : '1px solid #e5e5e5',
                     borderRadius: '6px',
-                    padding: '6px 12px',
+                    padding: '8px 16px',
                     fontSize: '13px',
                     fontFamily: 'var(--font-mono)',
-                    color: '#1a1a1a',
+                    color: hoveredButton === 'hover' ? themeColor : '#1a1a1a',
                   }}
                 >
                   Hover
@@ -216,36 +219,42 @@ export default function Home() {
                 Drag elements to see grab and grabbing cursors.
               </p>
               <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                {dragItems.map((label, index) => (
-                  <button
-                    key={label}
-                    draggable
-                    onDragStart={() => setDraggingIndex(index)}
-                    onDragEnd={() => setDraggingIndex(null)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => {
-                      if (draggingIndex !== null && draggingIndex !== index) {
-                        const newItems = [...dragItems]
-                        ;[newItems[0], newItems[1]] = [newItems[1], newItems[0]]
-                        setDragItems(newItems)
-                      }
-                      setDraggingIndex(null)
-                    }}
-                    style={{
-                      backgroundColor: 'rgb(253, 253, 253)',
-                      boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
-                      border: '1px solid #e5e5e5',
-                      borderRadius: '6px',
-                      padding: '6px 12px',
-                      fontSize: '13px',
-                      fontFamily: 'var(--font-mono)',
-                      color: '#1a1a1a',
-                      opacity: draggingIndex === index ? 0.5 : 1,
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
+                {dragItems.map((label, index) => {
+                  const buttonId = `drag-${index}`
+                  const isHovered = hoveredButton === buttonId
+                  return (
+                    <button
+                      key={label}
+                      draggable
+                      onMouseEnter={() => setHoveredButton(buttonId)}
+                      onMouseLeave={() => setHoveredButton(null)}
+                      onDragStart={() => setDraggingIndex(index)}
+                      onDragEnd={() => setDraggingIndex(null)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={() => {
+                        if (draggingIndex !== null && draggingIndex !== index) {
+                          const newItems = [...dragItems]
+                          ;[newItems[0], newItems[1]] = [newItems[1], newItems[0]]
+                          setDragItems(newItems)
+                        }
+                        setDraggingIndex(null)
+                      }}
+                      style={{
+                        backgroundColor: 'rgb(253, 253, 253)',
+                        boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
+                        border: isHovered ? `1px solid ${themeColor}` : '1px solid #e5e5e5',
+                        borderRadius: '6px',
+                        padding: '8px 16px',
+                        fontSize: '13px',
+                        fontFamily: 'var(--font-mono)',
+                        color: isHovered ? themeColor : '#1a1a1a',
+                        opacity: draggingIndex === index ? 0.5 : 1,
+                      }}
+                    >
+                      {label}
+                    </button>
+                  )
+                })}
               </div>
             </section>
 
