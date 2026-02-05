@@ -131,6 +131,8 @@ export default function Home() {
               <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                 {THEMES.map(({ name, color }) => {
                   const isActive = theme === name
+                  const isHovered = hoveredTheme === name
+                  const showColor = isActive || isHovered
 
                   return (
                     <button
@@ -141,7 +143,7 @@ export default function Home() {
                       style={{
                         backgroundColor: 'rgb(253, 253, 253)',
                         boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
-                        border: isActive ? `1px solid ${color}` : '1px solid #e5e5e5',
+                        border: showColor ? `1px solid ${color}` : '1px solid #e5e5e5',
                         borderRadius: '6px',
                         padding: '6px 12px',
                         fontSize: '13px',
@@ -149,7 +151,7 @@ export default function Home() {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px',
-                        color: '#000',
+                        color: showColor ? color : '#1a1a1a',
                       }}
                       aria-label={`Switch to ${name} theme`}
                     >
@@ -185,9 +187,9 @@ export default function Home() {
                     fontSize: '13px',
                     lineHeight: '16px',
                     letterSpacing: '0.5px',
-                    color: '#000',
+                    color: '#1a1a1a',
                     boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
-                    border: '1px solid #000',
+                    border: '1px solid #1a1a1a',
                     borderRadius: '6px',
                     padding: '8px 16px',
                     fontFamily: 'var(--font-mono)',
@@ -236,9 +238,9 @@ export default function Home() {
                       fontSize: '13px',
                       lineHeight: '16px',
                       letterSpacing: '0.5px',
-                      color: '#000',
+                      color: '#1a1a1a',
                       boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
-                      border: '1px solid #000',
+                      border: '1px solid #1a1a1a',
                       borderRadius: '6px',
                       padding: '8px 16px',
                       fontFamily: 'var(--font-mono)',
@@ -261,29 +263,17 @@ export default function Home() {
               }}>
                 Highlight
               </h3>
-              <p style={{
-                fontSize: '14px',
-                color: 'var(--muted)',
-                lineHeight: '1.5',
-              }}>
-                Select text to see the I-beam cursor with shadow.
-              </p>
-              <div
+              <p
                 data-cursor="text"
                 style={{
-                  marginTop: '16px',
-                  padding: '16px',
-                  background: 'var(--background)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
                   fontSize: '14px',
                   color: 'var(--muted)',
-                  lineHeight: '1.6',
+                  lineHeight: '1.5',
                   userSelect: 'text',
                 }}
               >
-                The effect is subtle but intentional, adding a layer of polish to your interface.
-              </div>
+                Select this text to see the I-beam cursor with shadow. The effect is subtle but intentional, adding a layer of polish to your interface.
+              </p>
             </section>
 
           </div>
