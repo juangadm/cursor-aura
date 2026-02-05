@@ -93,12 +93,6 @@ export default function Home() {
         display: 'flex',
         flexDirection: 'column',
       }}>
-        {/* Header */}
-        <header style={{
-          padding: '16px 24px',
-          borderBottom: '1px solid var(--border)',
-        }} />
-
         {/* Main Content */}
         <main style={{
           flex: 1,
