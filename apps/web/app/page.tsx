@@ -23,7 +23,7 @@ const hexToRgb = (hex: string): string => {
 }
 
 export default function Home() {
-  const [theme, setTheme] = useState<Theme>('blue')
+  const [theme, setTheme] = useState<Theme>('black')
   const [hoveredTheme, setHoveredTheme] = useState<Theme | null>(null)
   const [dragItems, setDragItems] = useState(['Drag me →', '← Drag me'])
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
@@ -128,10 +128,9 @@ export default function Home() {
               }}>
                 Customize the shadow color of the cursor.
               </p>
-              <div style={{ display: 'flex', gap: '2px', marginTop: '16px' }}>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                 {THEMES.map(({ name, color }) => {
                   const isActive = theme === name
-                  const isHovered = hoveredTheme === name
 
                   return (
                     <button
@@ -140,23 +139,17 @@ export default function Home() {
                       onMouseEnter={() => setHoveredTheme(name)}
                       onMouseLeave={() => setHoveredTheme(null)}
                       style={{
-                        background: isActive
-                          ? `rgba(${hexToRgb(color)}, 0.15)`
-                          : isHovered
-                            ? `rgba(${hexToRgb(color)}, 0.08)`
-                            : 'rgba(30, 30, 30, 0.05)',
-                        border: isActive ? `1px solid ${color}` : '1px solid rgba(30, 30, 30, 0.08)',
-                        borderRadius: '2px',
-                        padding: '4px 8px',
-                        fontSize: '12px',
-                        fontWeight: '300',
-                        letterSpacing: '-0.3px',
-                        lineHeight: '12px',
+                        backgroundColor: 'rgb(253, 253, 253)',
+                        boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
+                        border: isActive ? `1px solid ${color}` : '1px solid #e5e5e5',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontSize: '13px',
+                        fontFamily: 'var(--font-mono)',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px',
-                        color: isHovered ? color : (isActive ? color : 'rgb(30, 30, 30)'),
-                        fontFamily: 'var(--font-mono)',
+                        gap: '6px',
+                        color: '#000',
                       }}
                       aria-label={`Switch to ${name} theme`}
                     >
@@ -192,9 +185,9 @@ export default function Home() {
                     fontSize: '13px',
                     lineHeight: '16px',
                     letterSpacing: '0.5px',
-                    color: themeColor,
+                    color: '#000',
                     boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
-                    border: `1px solid ${themeColor}`,
+                    border: '1px solid #000',
                     borderRadius: '6px',
                     padding: '8px 16px',
                     fontFamily: 'var(--font-mono)',
@@ -243,9 +236,9 @@ export default function Home() {
                       fontSize: '13px',
                       lineHeight: '16px',
                       letterSpacing: '0.5px',
-                      color: themeColor,
+                      color: '#000',
                       boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
-                      border: `1px solid ${themeColor}`,
+                      border: '1px solid #000',
                       borderRadius: '6px',
                       padding: '8px 16px',
                       fontFamily: 'var(--font-mono)',
