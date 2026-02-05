@@ -53,6 +53,28 @@ When changes to `cursor-aura` package aren't reflected:
 - `[draggable="true"]` selector for grab cursor
 - `[data-cursor="text"]` for text cursor
 
+## HTML5 Drag Overrides Cursor Styles (Critical)
+
+**Problem:** HTML5 `draggable` attribute causes browser to take control of cursor during drag operations. CSS `cursor` properties and `:active` pseudo-class are ignored once dragging begins.
+
+**Why it happens:** The browser renders a "ghost image" of the dragged element and uses system-level drag cursors that cannot be overridden.
+
+**Solution:** For demos that need to show custom grab/grabbing cursors:
+- Use mouse events (`mousedown`/`mousemove`/`mouseup`) instead of HTML5 drag
+- Track dragging state manually
+- Apply `.dragging` class to trigger `cursor: var(--cursor-grabbing)`
+
+```tsx
+// DON'T - HTML5 drag (cursor won't work)
+<button draggable onDragStart={...}>
+
+// DO - Mouse events (cursor works)
+<button
+  onMouseDown={handleDragStart}
+  className={isDragging ? 'dragging' : ''}
+>
+```
+
 ## Build & Test Commands
 
 ```bash
