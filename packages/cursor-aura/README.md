@@ -1,8 +1,8 @@
 # cursor-aura
 
-Themed cursor shadows for the web.
+Themed cursor shadows for the web. Replaces your default cursor with macOS-style SVG cursors that have a colored drop shadow matching your theme.
 
-Your cursor is the most-used element on your site. Make it feel intentional.
+Still in beta. Works best in Chrome and Chromium-based browsers. Safari support is improving.
 
 ## Installation
 
@@ -68,9 +68,9 @@ Aura automatically respects user preferences:
 
 ## How It Works
 
-Aura generates custom cursor SVGs with baked-in shadows and applies them via CSS custom properties. It uses `!important` to ensure themed cursors override any existing inline cursor styles, so it "just works" without requiring you to modify your existing code.
+Aura generates custom cursor SVGs with baked-in shadows and applies them via CSS custom properties. No runtime overhead — just static CSS after the initial render. It uses `!important` to ensure themed cursors override any existing inline cursor styles, so it works without requiring you to modify your existing code.
 
-The cursors are based on macOS cursor designs and include:
+The cursors are based on macOS cursor designs, inspired by [Marcin Wichary](https://aresluna.org/)'s work. They include:
 
 - Default (arrow)
 - Pointer (hand)

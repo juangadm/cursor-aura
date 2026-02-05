@@ -1,6 +1,8 @@
 # Aura
 
-Themed cursor shadows for the web.
+Themed cursor shadows for the web. Replaces your default cursor with macOS-style SVG cursors that have a colored drop shadow matching your theme.
+
+Still in beta. Works best in Chrome and Chromium-based browsers. Safari support is improving.
 
 **Demo:** [aura.juangabriel.xyz](https://aura.juangabriel.xyz)
 

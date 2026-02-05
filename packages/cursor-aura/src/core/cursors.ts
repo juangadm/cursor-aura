@@ -1,5 +1,6 @@
 // Cursor SVG Templates & Generator
 // Based on macOS cursors from github.com/daviddarnes/mac-cursors
+// Inspired by Marcin Wichary's work (aresluna.org)
 
 export type CursorType = 'default' | 'pointer' | 'grab' | 'grabbing' | 'text'
 
