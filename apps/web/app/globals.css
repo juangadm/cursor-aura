@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --background: #fafafa;
+  --foreground: #0a0a0a;
+  --muted: #737373;
+  --border: #e5e5e5;
+  --theme-color: #0C3EFF;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Theme colors */
+[data-theme="pink"] { --theme-color: #FF6183; }
+[data-theme="orange"] { --theme-color: #FF9627; }
+[data-theme="blue"] { --theme-color: #0C3EFF; }
+[data-theme="purple"] { --theme-color: #8868EA; }
+[data-theme="black"] { --theme-color: #000000; }
+
+/* Code blocks */
+pre, code {
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, monospace;
+}
+
+pre {
+  background: #f4f4f5;
+  color: #1a1a1a;
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+code {
+  background: #f4f4f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+}
+
+/* Selection */
+::selection {
+  background: var(--theme-color);
+  color: white;
+}
