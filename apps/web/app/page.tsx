@@ -25,9 +25,6 @@ const hexToRgb = (hex: string): string => {
 export default function Home() {
   const [theme, setTheme] = useState<Theme>('blue')
   const [hoveredTheme, setHoveredTheme] = useState<Theme | null>(null)
-  const [dragItems, setDragItems] = useState(['Item A', 'Item B'])
-  const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
-  const [hoveredItem, setHoveredItem] = useState<number | null>(null)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -39,63 +36,10 @@ export default function Home() {
     <>
       <Aura color={themeColor} />
 
-      {/* Fixed Navigation with Theme Selector */}
-      <nav style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        padding: '12px 24px',
-      }}>
-        <div style={{ display: 'flex', gap: '2px' }}>
-          {THEMES.map(({ name, color }) => {
-            const isActive = theme === name
-            const isHovered = hoveredTheme === name
-
-            return (
-              <button
-                key={name}
-                onClick={() => setTheme(name)}
-                onMouseEnter={() => setHoveredTheme(name)}
-                onMouseLeave={() => setHoveredTheme(null)}
-                style={{
-                  background: isActive
-                    ? `rgba(${hexToRgb(color)}, 0.15)`
-                    : isHovered
-                      ? `rgba(${hexToRgb(color)}, 0.08)`
-                      : 'rgba(30, 30, 30, 0.05)',
-                  border: isActive ? `1px solid ${color}` : '1px solid rgba(30, 30, 30, 0.08)',
-                  borderRadius: '2px',
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  fontWeight: '300',
-                  letterSpacing: '-0.3px',
-                  lineHeight: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  color: isHovered ? color : (isActive ? color : 'rgb(30, 30, 30)'),
-                  fontFamily: 'monospace',
-                }}
-                aria-label={`Switch to ${name} theme`}
-              >
-                <span style={{ color }}>■</span>
-                <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
-              </button>
-            )
-          })}
-        </div>
-      </nav>
-
       <div style={{
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        paddingTop: '48px',
       }}>
         {/* Header */}
         <header style={{
@@ -138,9 +82,10 @@ export default function Home() {
           <div style={{ textAlign: 'center', maxWidth: '600px' }}>
             <h1 style={{
               fontSize: '64px',
-              fontWeight: '700',
+              fontWeight: '400',
               letterSpacing: '-2px',
               marginBottom: '16px',
+              fontFamily: 'var(--font-mono)',
             }}>
               AURA
             </h1>
@@ -170,31 +115,117 @@ export default function Home() {
             width: '100%',
             maxWidth: '500px',
           }}>
-            {/* Buttons Row */}
+            {/* Theme Selectors - inside playground */}
+            <div style={{
+              display: 'flex',
+              gap: '2px',
+              marginBottom: '24px',
+              justifyContent: 'center',
+            }}>
+              {THEMES.map(({ name, color }) => {
+                const isActive = theme === name
+                const isHovered = hoveredTheme === name
+
+                return (
+                  <button
+                    key={name}
+                    onClick={() => setTheme(name)}
+                    onMouseEnter={() => setHoveredTheme(name)}
+                    onMouseLeave={() => setHoveredTheme(null)}
+                    style={{
+                      background: isActive
+                        ? `rgba(${hexToRgb(color)}, 0.15)`
+                        : isHovered
+                          ? `rgba(${hexToRgb(color)}, 0.08)`
+                          : 'rgba(30, 30, 30, 0.05)',
+                      border: isActive ? `1px solid ${color}` : '1px solid rgba(30, 30, 30, 0.08)',
+                      borderRadius: '2px',
+                      padding: '4px 8px',
+                      fontSize: '12px',
+                      fontWeight: '300',
+                      letterSpacing: '-0.3px',
+                      lineHeight: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      color: isHovered ? color : (isActive ? color : 'rgb(30, 30, 30)'),
+                      fontFamily: 'var(--font-mono)',
+                    }}
+                    aria-label={`Switch to ${name} theme`}
+                  >
+                    <span style={{ color }}>■</span>
+                    <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Demo Buttons Row */}
             <div style={{
               display: 'flex',
               gap: '12px',
               marginBottom: '24px',
             }}>
-              {['Hover', 'Hover', 'Hover'].map((label, i) => (
-                <button
-                  key={i}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    background: 'var(--background)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    transition: 'background 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = '#f0f0f0')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--background)')}
-                >
-                  {label}
-                </button>
-              ))}
+              {/* Hover Button */}
+              <button
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgb(253, 253, 253)',
+                  fontSize: '13px',
+                  lineHeight: '16px',
+                  letterSpacing: '0.5px',
+                  color: themeColor,
+                  boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
+                  border: `1px solid ${themeColor}`,
+                  borderRadius: '6px',
+                  padding: '8px 16px',
+                  fontFamily: 'var(--font-mono)',
+                }}
+              >
+                Hover
+              </button>
+
+              {/* Drag me → Button */}
+              <button
+                draggable
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgb(253, 253, 253)',
+                  fontSize: '13px',
+                  lineHeight: '16px',
+                  letterSpacing: '0.5px',
+                  color: themeColor,
+                  boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
+                  border: `1px solid ${themeColor}`,
+                  borderRadius: '6px',
+                  padding: '8px 16px',
+                  fontFamily: 'var(--font-mono)',
+                  position: 'relative',
+                }}
+              >
+                Drag me →
+              </button>
+
+              {/* ← Drag me Button */}
+              <button
+                draggable
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgb(253, 253, 253)',
+                  fontSize: '13px',
+                  lineHeight: '16px',
+                  letterSpacing: '0.5px',
+                  color: themeColor,
+                  boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
+                  border: `1px solid ${themeColor}`,
+                  borderRadius: '6px',
+                  padding: '8px 16px',
+                  fontFamily: 'var(--font-mono)',
+                  position: 'relative',
+                }}
+              >
+                ← Drag me
+              </button>
             </div>
 
             {/* Text Selection Area */}
@@ -205,7 +236,6 @@ export default function Home() {
                 background: 'var(--background)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
-                marginBottom: '24px',
                 fontSize: '14px',
                 color: 'var(--muted)',
                 lineHeight: '1.6',
@@ -213,78 +243,6 @@ export default function Home() {
               }}
             >
               Select this text to see the I-beam cursor with a shadow. The effect is subtle but intentional, adding a layer of polish to your interface.
-            </div>
-
-            {/* Draggable Elements - swap positions */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {dragItems.map((item, index) => {
-                const isDragging = draggingIndex === index
-                const isHovered = hoveredItem === index
-
-                return (
-                  <div
-                    key={item}
-                    draggable
-                    onDragStart={(e) => {
-                      setDraggingIndex(index)
-                      e.dataTransfer.effectAllowed = 'move'
-                    }}
-                    onDragEnd={() => setDraggingIndex(null)}
-                    onDragOver={(e) => {
-                      e.preventDefault()
-                      e.dataTransfer.dropEffect = 'move'
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault()
-                      if (draggingIndex !== null && draggingIndex !== index) {
-                        const newItems = [...dragItems]
-                        const [removed] = newItems.splice(draggingIndex, 1)
-                        newItems.splice(index, 0, removed)
-                        setDragItems(newItems)
-                      }
-                      setDraggingIndex(null)
-                    }}
-                    onMouseEnter={() => setHoveredItem(index)}
-                    onMouseLeave={() => setHoveredItem(null)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '12px 16px',
-                      background: isDragging ? '#f0f0f0' : 'var(--background)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      opacity: isDragging ? 0.5 : 1,
-                      transition: 'background 0.15s ease, opacity 0.15s ease',
-                    }}
-                  >
-                    <span>{item}</span>
-
-                    {/* 6-dot grip handle (2x3 grid) - appears on hover */}
-                    {/* cursor removed - Aura CSS handles via parent [draggable="true"] */}
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(2, 1fr)',
-                        gap: '2px',
-                        padding: '4px',
-                        opacity: isHovered || isDragging ? 0.5 : 0,
-                        transform: isHovered || isDragging ? 'translateX(0)' : 'translateX(4px)',
-                        transition: 'opacity 0.15s ease, transform 0.15s ease',
-                      }}
-                    >
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                    </div>
-                  </div>
-                )
-              })}
             </div>
 
             {/* Hint */}
