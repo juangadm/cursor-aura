@@ -38,10 +38,6 @@ npm run dev
 npm run build
 ```
 
-## Credits
-
-Cursor design inspired by [Marcin Wichary](https://aresluna.org/). macOS cursor paths from [daviddarnes/mac-cursors](https://github.com/daviddarnes/mac-cursors).
-
 ## License
 
 MIT
