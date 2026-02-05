@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Aura } from 'cursor-aura'
 import Link from 'next/link'
 import { CodeBlock } from './components/CodeBlock'
@@ -23,15 +23,64 @@ const hexToRgb = (hex: string): string => {
 }
 
 export default function Home() {
-  const [theme, setTheme] = useState<Theme>('blue')
+  const [theme, setTheme] = useState<Theme>('black')
   const [hoveredTheme, setHoveredTheme] = useState<Theme | null>(null)
-  const [dragItems, setDragItems] = useState(['Item A', 'Item B'])
-  const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
-  const [hoveredItem, setHoveredItem] = useState<number | null>(null)
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null)
+
+  // Custom drag state (mouse-based, not HTML5)
+  const [itemPosition, setItemPosition] = useState(0) // 0-3 grid position
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragPos, setDragPos] = useState({ x: 0, y: 0 }) // cursor position
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }) // click offset from center
+  const [hoveredSlot, setHoveredSlot] = useState<number | null>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
+
+  // Custom drag handlers (mouse-based to maintain cursor control)
+  const handleDragStart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const rect = e.currentTarget.getBoundingClientRect()
+    setDragOffset({
+      x: e.clientX - rect.left - rect.width / 2,
+      y: e.clientY - rect.top - rect.height / 2,
+    })
+    setDragPos({ x: e.clientX, y: e.clientY })
+    setIsDragging(true)
+  }
+
+  const handleDrop = (slotIndex: number) => {
+    if (isDragging && slotIndex !== itemPosition) {
+      setItemPosition(slotIndex)
+    }
+    setIsDragging(false)
+  }
+
+  // Global mouse listeners for drag
+  useEffect(() => {
+    if (!isDragging) return
+
+    // Apply grabbing cursor globally during drag
+    document.body.classList.add('dragging')
+
+    const handleMouseMove = (e: MouseEvent) => {
+      setDragPos({ x: e.clientX, y: e.clientY })
+    }
+
+    const handleMouseUp = () => setIsDragging(false)
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      document.body.classList.remove('dragging')
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDragging])
 
   const themeColor = THEMES.find(t => t.name === theme)?.color || '#0C3EFF'
 
@@ -39,91 +88,16 @@ export default function Home() {
     <>
       <Aura color={themeColor} />
 
-      {/* Fixed Navigation with Theme Selector */}
-      <nav style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        padding: '12px 24px',
-      }}>
-        <div style={{ display: 'flex', gap: '2px' }}>
-          {THEMES.map(({ name, color }) => {
-            const isActive = theme === name
-            const isHovered = hoveredTheme === name
-
-            return (
-              <button
-                key={name}
-                onClick={() => setTheme(name)}
-                onMouseEnter={() => setHoveredTheme(name)}
-                onMouseLeave={() => setHoveredTheme(null)}
-                style={{
-                  background: isActive
-                    ? `rgba(${hexToRgb(color)}, 0.15)`
-                    : isHovered
-                      ? `rgba(${hexToRgb(color)}, 0.08)`
-                      : 'rgba(30, 30, 30, 0.05)',
-                  border: isActive ? `1px solid ${color}` : '1px solid rgba(30, 30, 30, 0.08)',
-                  borderRadius: '2px',
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  fontWeight: '300',
-                  letterSpacing: '-0.3px',
-                  lineHeight: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  color: isHovered ? color : (isActive ? color : 'rgb(30, 30, 30)'),
-                  fontFamily: 'monospace',
-                }}
-                aria-label={`Switch to ${name} theme`}
-              >
-                <span style={{ color }}>■</span>
-                <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
-              </button>
-            )
-          })}
-        </div>
-      </nav>
-
       <div style={{
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        paddingTop: '48px',
       }}>
         {/* Header */}
         <header style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
           padding: '16px 24px',
           borderBottom: '1px solid var(--border)',
-        }}>
-          {/* GitHub Link */}
-          <a
-            href="https://github.com/juangadm/cursor-aura"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '14px',
-              color: 'var(--muted)',
-            }}
-          >
-            GitHub
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M7 17L17 7M17 7H7M17 7V17" />
-            </svg>
-          </a>
-        </header>
+        }} />
 
         {/* Main Content */}
         <main style={{
@@ -138,189 +112,307 @@ export default function Home() {
           <div style={{ textAlign: 'center', maxWidth: '600px' }}>
             <h1 style={{
               fontSize: '64px',
-              fontWeight: '700',
+              fontWeight: '400',
               letterSpacing: '-2px',
               marginBottom: '16px',
+              fontFamily: 'var(--font-mono)',
             }}>
-              AURA
+              AURA <span style={{ fontSize: '16px', fontWeight: '400', color: 'var(--muted)' }}>(Beta)</span>
             </h1>
             <p style={{
               fontSize: '20px',
               color: 'var(--muted)',
-              marginBottom: '8px',
+              marginBottom: '24px',
             }}>
               Themed cursor shadows for the web.
             </p>
-            <p style={{
-              fontSize: '16px',
-              color: 'var(--muted)',
-              lineHeight: '1.6',
-            }}>
-              Your cursor is the most-used element on your site.<br />
-              Make it feel intentional.
-            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <Link
+                href="/getting-started"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 20px',
+                  backgroundColor: themeColor,
+                  border: `1px solid ${themeColor}`,
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontFamily: 'var(--font-mono)',
+                  color: '#fff',
+                }}
+              >
+                Get Started
+              </Link>
+              <a
+                href="https://github.com/juangadm/cursor-aura"
+                target="_blank"
+                rel="noopener noreferrer"
+                onMouseEnter={() => setHoveredButton('github')}
+                onMouseLeave={() => setHoveredButton(null)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '10px 20px',
+                  border: hoveredButton === 'github' ? `1px solid ${themeColor}` : '1px solid #d4d4d4',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontFamily: 'var(--font-mono)',
+                  color: hoveredButton === 'github' ? themeColor : 'var(--foreground)',
+                  transition: 'border-color 0.15s ease, color 0.15s ease',
+                }}
+              >
+                GitHub
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M7 17L17 7M17 7H7M17 7V17" />
+                </svg>
+              </a>
+            </div>
           </div>
 
-          {/* Playground */}
-          <div style={{
-            background: '#fff',
-            border: '1px solid var(--border)',
-            borderRadius: '12px',
-            padding: '32px',
-            width: '100%',
-            maxWidth: '500px',
-          }}>
-            {/* Buttons Row */}
-            <div style={{
-              display: 'flex',
-              gap: '12px',
-              marginBottom: '24px',
-            }}>
-              {['Hover', 'Hover', 'Hover'].map((label, i) => (
-                <button
-                  key={i}
-                  style={{
-                    flex: 1,
-                    padding: '12px 16px',
-                    background: 'var(--background)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    transition: 'background 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = '#f0f0f0')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--background)')}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+          {/* Demo Sections - Sonner style */}
+          <div style={{ width: '100%', maxWidth: '500px' }}>
 
-            {/* Text Selection Area */}
-            <div
-              data-cursor="text"
-              style={{
-                padding: '16px',
-                background: 'var(--background)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                marginBottom: '24px',
+            {/* Colors Section */}
+            <section style={{ marginBottom: '64px' }}>
+              <h3 style={{
+                fontSize: '15px',
+                fontWeight: '600',
+                color: 'var(--foreground)',
+                marginBottom: '8px',
+              }}>
+                Colors
+              </h3>
+              <p style={{
                 fontSize: '14px',
                 color: 'var(--muted)',
-                lineHeight: '1.6',
-                userSelect: 'text',
-              }}
-            >
-              Select this text to see the I-beam cursor with a shadow. The effect is subtle but intentional, adding a layer of polish to your interface.
-            </div>
+                lineHeight: '1.5',
+              }}>
+                Customize the shadow color of the cursor.
+              </p>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                {THEMES.map(({ name, color }) => {
+                  const isActive = theme === name
+                  const isHovered = hoveredTheme === name
+                  const showColor = isActive || isHovered
 
-            {/* Draggable Elements - swap positions */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {dragItems.map((item, index) => {
-                const isDragging = draggingIndex === index
-                const isHovered = hoveredItem === index
-
-                return (
-                  <div
-                    key={item}
-                    draggable
-                    onDragStart={(e) => {
-                      setDraggingIndex(index)
-                      e.dataTransfer.effectAllowed = 'move'
-                    }}
-                    onDragEnd={() => setDraggingIndex(null)}
-                    onDragOver={(e) => {
-                      e.preventDefault()
-                      e.dataTransfer.dropEffect = 'move'
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault()
-                      if (draggingIndex !== null && draggingIndex !== index) {
-                        const newItems = [...dragItems]
-                        const [removed] = newItems.splice(draggingIndex, 1)
-                        newItems.splice(index, 0, removed)
-                        setDragItems(newItems)
-                      }
-                      setDraggingIndex(null)
-                    }}
-                    onMouseEnter={() => setHoveredItem(index)}
-                    onMouseLeave={() => setHoveredItem(null)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '12px 16px',
-                      background: isDragging ? '#f0f0f0' : 'var(--background)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      opacity: isDragging ? 0.5 : 1,
-                      transition: 'background 0.15s ease, opacity 0.15s ease',
-                    }}
-                  >
-                    <span>{item}</span>
-
-                    {/* 6-dot grip handle (2x3 grid) - appears on hover */}
-                    {/* cursor removed - Aura CSS handles via parent [draggable="true"] */}
-                    <div
+                  return (
+                    <button
+                      key={name}
+                      onClick={() => setTheme(name)}
+                      onMouseEnter={() => setHoveredTheme(name)}
+                      onMouseLeave={() => setHoveredTheme(null)}
                       style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(2, 1fr)',
-                        gap: '2px',
-                        padding: '4px',
-                        opacity: isHovered || isDragging ? 0.5 : 0,
-                        transform: isHovered || isDragging ? 'translateX(0)' : 'translateX(4px)',
-                        transition: 'opacity 0.15s ease, transform 0.15s ease',
+                        backgroundColor: 'rgb(253, 253, 253)',
+                        boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
+                        border: showColor ? `1px solid ${color}` : '1px solid #d4d4d4',
+                        borderRadius: '6px',
+                        padding: '8px 16px',
+                        fontSize: '13px',
+                        fontFamily: 'var(--font-mono)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        color: showColor ? color : '#1a1a1a',
+                      }}
+                      aria-label={`Switch to ${name} theme`}
+                    >
+                      <span style={{ color }}>■</span>
+                      <span>{name.charAt(0).toUpperCase() + name.slice(1)}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </section>
+
+            {/* Hover Section */}
+            <section style={{ marginBottom: '64px' }}>
+              <h3 style={{
+                fontSize: '15px',
+                fontWeight: '600',
+                color: 'var(--foreground)',
+                marginBottom: '8px',
+              }}>
+                Hover
+              </h3>
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--muted)',
+                lineHeight: '1.5',
+              }}>
+                Hover over buttons to see the pointer cursor with shadow.
+              </p>
+              <div style={{ marginTop: '16px' }}>
+                <button
+                  onMouseEnter={() => setHoveredButton('hover')}
+                  onMouseLeave={() => setHoveredButton(null)}
+                  style={{
+                    backgroundColor: 'rgb(253, 253, 253)',
+                    boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
+                    border: hoveredButton === 'hover' ? `1px solid ${themeColor}` : '1px solid #d4d4d4',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    fontSize: '13px',
+                    fontFamily: 'var(--font-mono)',
+                    color: hoveredButton === 'hover' ? themeColor : '#1a1a1a',
+                  }}
+                >
+                  Hover
+                </button>
+              </div>
+            </section>
+
+            {/* Drag Section */}
+            <section style={{ marginBottom: '64px' }}>
+              <h3 style={{
+                fontSize: '15px',
+                fontWeight: '600',
+                color: 'var(--foreground)',
+                marginBottom: '8px',
+              }}>
+                Drag
+              </h3>
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--muted)',
+                lineHeight: '1.5',
+              }}>
+                Drag the item to an empty slot to see grab and grabbing cursors.
+              </p>
+              <div
+                ref={gridRef}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, auto)',
+                  gap: '12px',
+                  marginTop: '16px',
+                  justifyContent: 'start',
+                }}
+              >
+                {[0, 1, 2, 3].map((slotIndex) => {
+                  const hasItem = itemPosition === slotIndex && !isDragging
+                  const isGhostSlot = itemPosition === slotIndex && isDragging
+                  const isSlotHovered = hoveredSlot === slotIndex && isDragging && itemPosition !== slotIndex
+
+                  return (
+                    <div
+                      key={slotIndex}
+                      onMouseEnter={() => setHoveredSlot(slotIndex)}
+                      onMouseLeave={() => setHoveredSlot(null)}
+                      onMouseUp={() => handleDrop(slotIndex)}
+                      style={{
+                        minWidth: '107px',
+                        minHeight: '37px',
+                        border: hasItem
+                          ? 'none'
+                          : isSlotHovered
+                            ? `1px dashed ${themeColor}`
+                            : '1px dashed #d4d4d4',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'border-color 0.15s ease',
                       }}
                     >
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
-                      <div style={{ width: '3px', height: '3px', borderRadius: '50%', backgroundColor: '#7E7E7E' }} />
+                      {hasItem && (
+                        <button
+                          ref={buttonRef}
+                          className="draggable"
+                          onMouseDown={handleDragStart}
+                          onMouseEnter={() => setHoveredButton('drag-item')}
+                          onMouseLeave={() => setHoveredButton(null)}
+                          style={{
+                            backgroundColor: 'rgb(253, 253, 253)',
+                            boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
+                            border: hoveredButton === 'drag-item'
+                              ? `1px solid ${themeColor}`
+                              : '1px solid #d4d4d4',
+                            borderRadius: '6px',
+                            padding: '8px 16px',
+                            fontSize: '13px',
+                            fontFamily: 'var(--font-mono)',
+                            color: hoveredButton === 'drag-item' ? themeColor : '#1a1a1a',
+                            userSelect: 'none',
+                          }}
+                        >
+                          ★ Drag me
+                        </button>
+                      )}
+                      {isGhostSlot && (
+                        <div
+                          style={{
+                            backgroundColor: 'rgb(253, 253, 253)',
+                            boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
+                            border: '1px solid #d4d4d4',
+                            borderRadius: '6px',
+                            padding: '8px 16px',
+                            fontSize: '13px',
+                            fontFamily: 'var(--font-mono)',
+                            color: '#1a1a1a',
+                            opacity: 0.3,
+                            userSelect: 'none',
+                          }}
+                        >
+                          ★ Drag me
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
+              {/* Floating drag element */}
+              {isDragging && (
+                <div
+                  className="dragging"
+                  style={{
+                    position: 'fixed',
+                    left: dragPos.x - dragOffset.x,
+                    top: dragPos.y - dragOffset.y,
+                    transform: 'translate(-50%, -50%)',
+                    pointerEvents: 'none',
+                    zIndex: 1000,
+                    backgroundColor: 'rgb(253, 253, 253)',
+                    boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset, 0 4px 12px rgba(0,0,0,0.15)',
+                    border: `1px solid ${themeColor}`,
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    fontSize: '13px',
+                    fontFamily: 'var(--font-mono)',
+                    color: themeColor,
+                    userSelect: 'none',
+                  }}
+                >
+                  ★ Drag me
+                </div>
+              )}
+            </section>
 
-            {/* Hint */}
-            <p style={{
-              marginTop: '24px',
-              fontSize: '13px',
-              color: 'var(--muted)',
-              textAlign: 'center',
-            }}>
-              Notice your cursor?
-            </p>
+            {/* Highlight Section */}
+            <section style={{ marginBottom: '64px' }}>
+              <h3 style={{
+                fontSize: '15px',
+                fontWeight: '600',
+                color: 'var(--foreground)',
+                marginBottom: '8px',
+              }}>
+                Highlight
+              </h3>
+              <p
+                data-cursor="text"
+                style={{
+                  fontSize: '14px',
+                  color: 'var(--muted)',
+                  lineHeight: '1.5',
+                  userSelect: 'text',
+                }}
+              >
+                Select this text to see the I-beam cursor with shadow. The effect is subtle but intentional, adding a layer of polish to your interface.
+              </p>
+            </section>
+
           </div>
-
-          {/* CTA */}
-          <Link
-            href="/getting-started"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '14px 28px',
-              background: 'var(--foreground)',
-              color: 'var(--background)',
-              borderRadius: '8px',
-              fontSize: '15px',
-              fontWeight: '500',
-              transition: 'opacity 0.15s ease',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-          >
-            Get Started
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </Link>
 
           {/* How It Works */}
           <div style={{
