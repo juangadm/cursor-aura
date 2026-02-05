@@ -184,15 +184,13 @@ export default function Home() {
                 <button
                   style={{
                     backgroundColor: 'rgb(253, 253, 253)',
-                    fontSize: '13px',
-                    lineHeight: '16px',
-                    letterSpacing: '0.5px',
-                    color: '#1a1a1a',
                     boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
-                    border: '1px solid #1a1a1a',
+                    border: '1px solid #e5e5e5',
                     borderRadius: '6px',
-                    padding: '8px 16px',
+                    padding: '6px 12px',
+                    fontSize: '13px',
                     fontFamily: 'var(--font-mono)',
+                    color: '#1a1a1a',
                   }}
                 >
                   Hover
@@ -235,15 +233,13 @@ export default function Home() {
                     }}
                     style={{
                       backgroundColor: 'rgb(253, 253, 253)',
-                      fontSize: '13px',
-                      lineHeight: '16px',
-                      letterSpacing: '0.5px',
-                      color: '#1a1a1a',
                       boxShadow: 'rgb(227, 227, 227) -2px -2px 0px 0px inset',
-                      border: '1px solid #1a1a1a',
+                      border: '1px solid #e5e5e5',
                       borderRadius: '6px',
-                      padding: '8px 16px',
+                      padding: '6px 12px',
+                      fontSize: '13px',
                       fontFamily: 'var(--font-mono)',
+                      color: '#1a1a1a',
                       opacity: draggingIndex === index ? 0.5 : 1,
                     }}
                   >
