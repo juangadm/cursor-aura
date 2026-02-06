@@ -370,11 +370,8 @@ export default function App() {
                 color: 'var(--muted)',
                 lineHeight: '1.7',
               }}>
-                <li style={{ marginBottom: '8px' }}>
-                  <strong style={{ color: 'var(--foreground)' }}>Reduced motion:</strong> Disabled when <code>prefers-reduced-motion: reduce</code> is set
-                </li>
                 <li>
-                  <strong style={{ color: 'var(--foreground)' }}>Touch devices:</strong> Gracefully skipped (no cursor to shadow)
+                  <strong style={{ color: 'var(--foreground)' }}>Touch-only devices:</strong> Automatically skipped when no mouse or trackpad is detected
                 </li>
               </ul>
             </section>
