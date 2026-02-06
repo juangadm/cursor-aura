@@ -31,14 +31,18 @@ const hexToRgb = (hex: string): string => {
 }
 
 export default function GettingStarted() {
-  const [theme, setTheme] = useState<Theme>('blue')
+  const [theme, setTheme] = useState<Theme>('black')
   const [hoveredTheme, setHoveredTheme] = useState<Theme | null>(null)
   const [activeSection, setActiveSection] = useState<string>('installation')
   const [isMobile, setIsMobile] = useState(false)
 
+  // Hydration-Proof: sync React state from the inline script's DOM value
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-  }, [theme])
+    const saved = document.documentElement.getAttribute('data-theme') as Theme | null
+    if (saved && THEMES.some(t => t.name === saved)) {
+      setTheme(saved)
+    }
+  }, [])
 
   // Check for mobile
   useEffect(() => {
@@ -73,7 +77,7 @@ export default function GettingStarted() {
 
   return (
     <>
-      <Aura color={themeColor} />
+      <Aura color="var(--theme-color)" />
 
       <div style={{
         minHeight: '100vh',
@@ -203,7 +207,11 @@ export default function GettingStarted() {
                 return (
                   <button
                     key={name}
-                    onClick={() => startTransition(() => setTheme(name))}
+                    onClick={() => {
+                      document.documentElement.setAttribute('data-theme', name)
+                      try { localStorage.setItem('aura-theme', name) } catch {}
+                      startTransition(() => setTheme(name))
+                    }}
                     onMouseEnter={() => setHoveredTheme(name)}
                     onMouseLeave={() => setHoveredTheme(null)}
                     style={{

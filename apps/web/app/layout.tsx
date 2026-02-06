@@ -24,7 +24,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" data-theme="blue">
+    <html lang="en" data-theme="black">
+      <head>
+        {/* Hydration-Proof: set correct theme before React hydrates so
+            var(--theme-color) resolves to the saved value on first paint.
+            Without this, the cursor shadow flashes the wrong color. */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          try {
+            var t = localStorage.getItem('aura-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+          } catch(e) {}
+        `}} />
+      </head>
       <body>{children}</body>
     </html>
   )
