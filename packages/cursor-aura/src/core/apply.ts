@@ -38,22 +38,27 @@ input[type="number"], textarea, [contenteditable="true"], [data-cursor="text"] {
  * Injects the static cursor CSS rules into <head>.
  * Idempotent: reuses existing element if present.
  * Prepends to <head> so consumer stylesheets win at equal specificity.
+ * Portal-proof: accepts an optional document for correct context in
+ * iframes, portals, or pop-out windows.
  */
-export function injectCursorStyles(): void {
-  if (document.getElementById(STYLE_ID)) return
-  const el = document.createElement('style')
-  el.id = STYLE_ID
-  el.textContent = CURSOR_RULES
-  document.head.prepend(el)
+export function injectCursorStyles(doc: Document = document): HTMLStyleElement {
+  let el = doc.getElementById(STYLE_ID) as HTMLStyleElement | null
+  if (!el) {
+    el = doc.createElement('style')
+    el.id = STYLE_ID
+    el.textContent = CURSOR_RULES
+    doc.head.prepend(el)
+  }
+  return el
 }
 
 /**
  * Sets the 5 --cursor-* CSS custom properties on :root.
  * `color` must be a resolved value (not a var() reference).
  */
-export function setCursorVariables(color: string): void {
+export function setCursorVariables(color: string, doc: Document = document): void {
   const cursors = generateThemedCursors(color)
-  const root = document.documentElement
+  const root = doc.documentElement
   for (const { prop, type, fallback } of CSS_VARS) {
     root.style.setProperty(prop, getCursorCSS(cursors[type], type, fallback))
   }
@@ -63,18 +68,30 @@ export function setCursorVariables(color: string): void {
  * If `color` starts with "var(", reads the computed value from
  * document.documentElement. Otherwise returns `color` unchanged.
  */
-export function resolveColor(color: string): string {
+export function resolveColor(color: string, doc: Document = document): string {
   if (!color.startsWith('var(')) return color
   const varName = color.slice(4, -1).trim()
-  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || '#000'
+  return getComputedStyle(doc.documentElement).getPropertyValue(varName).trim() || '#000'
 }
 
 /**
  * Removes the <style> element and all 5 CSS custom properties from :root.
  */
-export function removeCursorStyles(): void {
-  document.getElementById(STYLE_ID)?.remove()
-  const root = document.documentElement
+export function removeCursorStyles(doc: Document = document): void {
+  doc.getElementById(STYLE_ID)?.remove()
+  const root = doc.documentElement
+  for (const { prop } of CSS_VARS) {
+    root.style.removeProperty(prop)
+  }
+}
+
+/**
+ * Removes the 5 CSS custom properties from :root without removing the
+ * <style> element. Used for Activity-proof cleanup where the style tag
+ * is disabled via media attribute rather than removed.
+ */
+export function removeCursorVariables(doc: Document = document): void {
+  const root = doc.documentElement
   for (const { prop } of CSS_VARS) {
     root.style.removeProperty(prop)
   }
@@ -84,7 +101,8 @@ export function removeCursorStyles(): void {
  * Returns true when the primary pointing device is a mouse or trackpad.
  * Hybrid devices (laptop + touchscreen) return true.
  * Touch-only devices return false.
+ * Portal-proof: accepts an optional window for correct context.
  */
-export function hasPointerDevice(): boolean {
-  return window.matchMedia('(pointer: fine)').matches
+export function hasPointerDevice(win: Window = window): boolean {
+  return win.matchMedia('(pointer: fine)').matches
 }

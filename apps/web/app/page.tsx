@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, startTransition } from 'react'
 import { Aura } from 'cursor-aura'
 import Link from 'next/link'
 import { CodeBlock } from './components/CodeBlock'
@@ -36,9 +36,15 @@ export default function Home() {
   const gridRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
+  // Hydration-Proof: sync React state from the inline script's DOM value.
+  // The layout's <script> already set data-theme before paint, so
+  // var(--theme-color) is correct from first frame. This just aligns state.
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-  }, [theme])
+    const saved = document.documentElement.getAttribute('data-theme') as Theme | null
+    if (saved && THEMES.some(t => t.name === saved)) {
+      setTheme(saved)
+    }
+  }, [])
 
   // Custom drag handlers (mouse-based to maintain cursor control)
   const handleDragStart = (e: React.MouseEvent) => {
@@ -59,12 +65,16 @@ export default function Home() {
     setIsDragging(false)
   }
 
-  // Global mouse listeners for drag
+  // Portal-Proof: use ownerDocument.defaultView for correct window context
   useEffect(() => {
     if (!isDragging) return
 
+    const node = gridRef.current
+    const doc = node?.ownerDocument ?? document
+    const win = doc.defaultView || window
+
     // Apply grabbing cursor globally during drag
-    document.body.classList.add('dragging')
+    doc.body.classList.add('dragging')
 
     const handleMouseMove = (e: MouseEvent) => {
       setDragPos({ x: e.clientX, y: e.clientY })
@@ -72,13 +82,13 @@ export default function Home() {
 
     const handleMouseUp = () => setIsDragging(false)
 
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    win.addEventListener('mousemove', handleMouseMove)
+    win.addEventListener('mouseup', handleMouseUp)
 
     return () => {
-      document.body.classList.remove('dragging')
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
+      doc.body.classList.remove('dragging')
+      win.removeEventListener('mousemove', handleMouseMove)
+      win.removeEventListener('mouseup', handleMouseUp)
     }
   }, [isDragging])
 
@@ -86,7 +96,10 @@ export default function Home() {
 
   return (
     <>
-      <Aura color={themeColor} />
+      {/* Hydration-Proof: use CSS variable so the cursor resolves its
+          color from the inline script's data-theme, not React state.
+          No flash of wrong cursor shadow on load. */}
+      <Aura color="var(--theme-color)" />
 
       <div style={{
         minHeight: '100vh',
@@ -202,7 +215,11 @@ export default function Home() {
                   return (
                     <button
                       key={name}
-                      onClick={() => setTheme(name)}
+                      onClick={() => {
+                        document.documentElement.setAttribute('data-theme', name)
+                        try { localStorage.setItem('aura-theme', name) } catch {}
+                        startTransition(() => setTheme(name))
+                      }}
                       onMouseEnter={() => setHoveredTheme(name)}
                       onMouseLeave={() => setHoveredTheme(null)}
                       style={{

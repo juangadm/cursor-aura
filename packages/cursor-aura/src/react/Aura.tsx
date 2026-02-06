@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import {
   injectCursorStyles,
   setCursorVariables,
   resolveColor,
   removeCursorStyles,
+  removeCursorVariables,
   hasPointerDevice,
 } from '../core/apply'
 
@@ -21,8 +22,9 @@ export interface AuraProps {
 /**
  * Aura - Themed cursor shadows for the web
  *
- * Renders nothing visible - applies custom cursors via CSS custom properties
- * on the document root. The shadow color updates automatically when the
+ * Renders a hidden marker element to detect the correct document context
+ * (portal-proof). Applies custom cursors via CSS custom properties on the
+ * document root. The shadow color updates automatically when the
  * color prop changes.
  *
  * @example
@@ -32,14 +34,34 @@ export interface AuraProps {
  * ```
  */
 export function Aura({ color = '#000' }: AuraProps) {
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!hasPointerDevice()) return
+  const ref = useRef<HTMLSpanElement>(null)
+  const styleRef = useRef<HTMLStyleElement | null>(null)
 
-    injectCursorStyles()
+  // Activity-Proof: toggle media attribute to disable styles synchronously
+  // when hidden by <Activity>. On hide, cleanup sets media="not all" before
+  // paint so cursor styles don't leak into hidden containers.
+  useLayoutEffect(() => {
+    if (!styleRef.current) return
+    styleRef.current.media = 'all'
+    return () => {
+      if (styleRef.current) styleRef.current.media = 'not all'
+    }
+  })
+
+  // Portal-Proof: use ownerDocument to inject styles into the correct
+  // document context (works in iframes, portals, and pop-out windows).
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    const doc = node.ownerDocument
+    const win = doc.defaultView || window
+
+    if (!hasPointerDevice(win)) return
+
+    styleRef.current = injectCursorStyles(doc)
 
     const apply = () => {
-      setCursorVariables(resolveColor(color))
+      setCursorVariables(resolveColor(color, doc), doc)
     }
     apply()
 
@@ -47,21 +69,22 @@ export function Aura({ color = '#000' }: AuraProps) {
     const observer = new MutationObserver(() => {
       if (color.startsWith('var(')) apply()
     })
-    observer.observe(document.documentElement, {
+    observer.observe(doc.documentElement, {
       attributes: true,
       attributeFilter: ['class', 'style', 'data-theme'],
     })
 
-    window.addEventListener('themechange', apply)
+    win.addEventListener('themechange', apply)
 
     return () => {
       observer.disconnect()
-      window.removeEventListener('themechange', apply)
-      removeCursorStyles()
+      win.removeEventListener('themechange', apply)
+      removeCursorStyles(doc)
+      styleRef.current = null
     }
   }, [color])
 
-  return null
+  return <span ref={ref} style={{ display: 'none' }} />
 }
 
 export default Aura
