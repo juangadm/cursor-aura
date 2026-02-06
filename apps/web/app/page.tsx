@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, startTransition } from 'react'
 import { Aura } from 'cursor-aura'
 import Link from 'next/link'
 import { CodeBlock } from './components/CodeBlock'
@@ -59,12 +59,16 @@ export default function Home() {
     setIsDragging(false)
   }
 
-  // Global mouse listeners for drag
+  // Portal-Proof: use ownerDocument.defaultView for correct window context
   useEffect(() => {
     if (!isDragging) return
 
+    const node = gridRef.current
+    const doc = node?.ownerDocument ?? document
+    const win = doc.defaultView || window
+
     // Apply grabbing cursor globally during drag
-    document.body.classList.add('dragging')
+    doc.body.classList.add('dragging')
 
     const handleMouseMove = (e: MouseEvent) => {
       setDragPos({ x: e.clientX, y: e.clientY })
@@ -72,13 +76,13 @@ export default function Home() {
 
     const handleMouseUp = () => setIsDragging(false)
 
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseup', handleMouseUp)
+    win.addEventListener('mousemove', handleMouseMove)
+    win.addEventListener('mouseup', handleMouseUp)
 
     return () => {
-      document.body.classList.remove('dragging')
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseup', handleMouseUp)
+      doc.body.classList.remove('dragging')
+      win.removeEventListener('mousemove', handleMouseMove)
+      win.removeEventListener('mouseup', handleMouseUp)
     }
   }, [isDragging])
 
@@ -202,7 +206,7 @@ export default function Home() {
                   return (
                     <button
                       key={name}
-                      onClick={() => setTheme(name)}
+                      onClick={() => startTransition(() => setTheme(name))}
                       onMouseEnter={() => setHoveredTheme(name)}
                       onMouseLeave={() => setHoveredTheme(null)}
                       style={{

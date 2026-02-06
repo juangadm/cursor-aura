@@ -12,9 +12,15 @@ export interface AuraOptions {
    * @default '#000'
    */
   color?: string
+  /**
+   * The document to inject styles into. Defaults to the global document.
+   * Portal-proof: pass a different document for iframes or pop-out windows.
+   */
+  document?: Document
 }
 
 let currentColor: string | null = null
+let currentDoc: Document | null = null
 let observer: MutationObserver | null = null
 let themeChangeHandler: (() => void) | null = null
 
@@ -30,17 +36,21 @@ let themeChangeHandler: (() => void) | null = null
  */
 function init(options: AuraOptions = {}): void {
   if (typeof window === 'undefined') return
-  if (!hasPointerDevice()) return
 
+  const doc = options.document || document
+  const win = doc.defaultView || window
+  if (!hasPointerDevice(win)) return
+
+  currentDoc = doc
   const color = options.color || '#000'
 
-  injectCursorStyles()
+  injectCursorStyles(doc)
   applyColor(color)
 
   observer = new MutationObserver(() => {
     if (currentColor) applyColor(currentColor)
   })
-  observer.observe(document.documentElement, {
+  observer.observe(doc.documentElement, {
     attributes: true,
     attributeFilter: ['class', 'style', 'data-theme'],
   })
@@ -48,7 +58,7 @@ function init(options: AuraOptions = {}): void {
   themeChangeHandler = () => {
     if (currentColor) applyColor(currentColor)
   }
-  window.addEventListener('themechange', themeChangeHandler)
+  win.addEventListener('themechange', themeChangeHandler)
 }
 
 /**
@@ -62,22 +72,26 @@ function setColor(color: string): void {
  * Clean up Aura - removes styles, event listeners, and cache
  */
 function destroy(): void {
+  const doc = currentDoc || document
+  const win = doc.defaultView || window
+
   if (observer) {
     observer.disconnect()
     observer = null
   }
   if (themeChangeHandler) {
-    window.removeEventListener('themechange', themeChangeHandler)
+    win.removeEventListener('themechange', themeChangeHandler)
     themeChangeHandler = null
   }
-  removeCursorStyles()
+  removeCursorStyles(doc)
   clearCursorCache()
   currentColor = null
+  currentDoc = null
 }
 
 function applyColor(color: string): void {
   currentColor = color
-  setCursorVariables(color)
+  setCursorVariables(color, currentDoc || document)
 }
 
 export const Aura = { init, setColor, destroy }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, startTransition } from 'react'
 import { Aura } from 'cursor-aura'
 import Link from 'next/link'
 import { CodeBlock } from '../components/CodeBlock'
@@ -203,7 +203,7 @@ export default function GettingStarted() {
                 return (
                   <button
                     key={name}
-                    onClick={() => setTheme(name)}
+                    onClick={() => startTransition(() => setTheme(name))}
                     onMouseEnter={() => setHoveredTheme(name)}
                     onMouseLeave={() => setHoveredTheme(null)}
                     style={{
