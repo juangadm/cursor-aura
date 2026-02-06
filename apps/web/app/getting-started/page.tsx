@@ -19,7 +19,8 @@ const SECTIONS = [
   { id: 'installation', label: 'Installation' },
   { id: 'react', label: 'React' },
   { id: 'vanilla', label: 'Vanilla JS' },
-  { id: 'props', label: 'Props' },
+  { id: 'theming', label: 'Theming & SSR' },
+  { id: 'api', label: 'API Reference' },
   { id: 'accessibility', label: 'Accessibility' },
 ]
 
@@ -269,7 +270,7 @@ export default function GettingStarted() {
                 lineHeight: '1.7',
                 marginBottom: '16px',
               }}>
-                Add the component anywhere in your app:
+                Add the component anywhere in your app. Use a CSS variable for the color to avoid hydration flashes when server-rendering with a persisted theme:
               </p>
               <CodeBlock>{`import { Aura } from 'cursor-aura'
 
@@ -281,6 +282,15 @@ export default function App() {
     </>
   )
 }`}</CodeBlock>
+              <p style={{
+                fontSize: '15px',
+                color: 'var(--muted)',
+                lineHeight: '1.7',
+                marginTop: '16px',
+              }}>
+                Or pass a static color directly:
+              </p>
+              <CodeBlock>{`<Aura color="#0C3EFF" />`}</CodeBlock>
             </section>
 
             {/* Vanilla JS */}
@@ -311,20 +321,101 @@ export default function App() {
   // Clean up
   // Aura.destroy()
 </script>`}</CodeBlock>
+              <p style={{
+                fontSize: '15px',
+                color: 'var(--muted)',
+                lineHeight: '1.7',
+                marginTop: '16px',
+              }}>
+                For iframes or pop-out windows, pass the target document:
+              </p>
+              <CodeBlock>{`Aura.init({
+  color: '#0C3EFF',
+  document: iframe.contentDocument
+})`}</CodeBlock>
             </section>
 
-            {/* Props */}
-            <section id="props" style={{ marginBottom: '48px' }}>
+            {/* Theming & SSR */}
+            <section id="theming" style={{ marginBottom: '48px' }}>
               <h2 style={{
                 fontSize: '18px',
                 fontWeight: '600',
                 marginBottom: '16px',
               }}>
-                Props
+                Theming & SSR
               </h2>
-              <div style={{
-                overflowX: 'auto',
+              <p style={{
+                fontSize: '15px',
+                color: 'var(--muted)',
+                lineHeight: '1.7',
+                marginBottom: '16px',
               }}>
+                If your app persists a theme preference (e.g. to localStorage), the cursor shadow can flash the wrong color on page load. The server renders with the default theme, then React hydrates and applies the saved theme &mdash; but there&apos;s a visible frame in between.
+              </p>
+              <p style={{
+                fontSize: '15px',
+                color: 'var(--muted)',
+                lineHeight: '1.7',
+                marginBottom: '16px',
+              }}>
+                Fix this with an inline script that sets the correct theme before React hydrates:
+              </p>
+              <CodeBlock>{`// In your root layout (e.g. layout.tsx)
+<html data-theme="default">
+  <head>
+    <script dangerouslySetInnerHTML={{ __html: \`
+      try {
+        var t = localStorage.getItem('my-theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+      } catch(e) {}
+    \`}} />
+  </head>
+  <body>{children}</body>
+</html>`}</CodeBlock>
+              <p style={{
+                fontSize: '15px',
+                color: 'var(--muted)',
+                lineHeight: '1.7',
+                marginTop: '16px',
+                marginBottom: '16px',
+              }}>
+                Then use a CSS variable for the Aura color so it resolves from the pre-set attribute:
+              </p>
+              <CodeBlock>{`/* CSS */
+[data-theme="blue"]   { --theme-color: #0C3EFF; }
+[data-theme="pink"]   { --theme-color: #FF6183; }
+
+/* React */
+<Aura color="var(--theme-color)" />`}</CodeBlock>
+              <p style={{
+                fontSize: '14px',
+                color: 'var(--muted)',
+                lineHeight: '1.7',
+                marginTop: '16px',
+              }}>
+                The Aura component automatically watches for <code>data-theme</code>, <code>class</code>, and <code>style</code> attribute changes on the document root and re-resolves CSS variables when they change.
+              </p>
+            </section>
+
+            {/* API Reference */}
+            <section id="api" style={{ marginBottom: '48px' }}>
+              <h2 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                marginBottom: '16px',
+              }}>
+                API Reference
+              </h2>
+
+              <h3 style={{
+                fontSize: '15px',
+                fontWeight: '600',
+                marginBottom: '12px',
+                color: 'var(--foreground)',
+              }}>
+                React: <code style={{ fontWeight: '400' }}>&lt;Aura /&gt;</code>
+              </h3>
+              <div style={{ overflowX: 'auto', marginBottom: '32px' }}>
                 <table style={{
                   width: '100%',
                   borderCollapse: 'collapse',
@@ -347,8 +438,48 @@ export default function App() {
                         <code>color</code>
                       </td>
                       <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>string</td>
-                      <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>#000</td>
-                      <td style={{ padding: '12px 0 12px 16px', color: 'var(--muted)' }}>Shadow color (hex, rgb, or CSS variable)</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>&apos;#000&apos;</td>
+                      <td style={{ padding: '12px 0 12px 16px', color: 'var(--muted)' }}>Shadow color. Accepts hex, rgb, hsl, or a CSS variable like <code>var(--color)</code>.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h3 style={{
+                fontSize: '15px',
+                fontWeight: '600',
+                marginBottom: '12px',
+                color: 'var(--foreground)',
+              }}>
+                Vanilla JS: <code style={{ fontWeight: '400' }}>Aura</code>
+              </h3>
+              <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+                <table style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontSize: '14px',
+                }}>
+                  <thead>
+                    <tr style={{
+                      borderBottom: '1px solid var(--border)',
+                      textAlign: 'left',
+                    }}>
+                      <th style={{ padding: '12px 16px 12px 0', fontWeight: '600' }}>Method</th>
+                      <th style={{ padding: '12px 0 12px 16px', fontWeight: '600' }}>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '12px 16px 12px 0' }}><code>Aura.init(options?)</code></td>
+                      <td style={{ padding: '12px 0 12px 16px', color: 'var(--muted)' }}>Initialize. Options: <code>color</code> (string, default <code>&apos;#000&apos;</code>), <code>document</code> (Document, for iframes/portals).</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '12px 16px 12px 0' }}><code>Aura.setColor(color)</code></td>
+                      <td style={{ padding: '12px 0 12px 16px', color: 'var(--muted)' }}>Update the shadow color at any time.</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '12px 16px 12px 0' }}><code>Aura.destroy()</code></td>
+                      <td style={{ padding: '12px 0 12px 16px', color: 'var(--muted)' }}>Remove all cursor styles, event listeners, and caches.</td>
                     </tr>
                   </tbody>
                 </table>
@@ -369,17 +500,23 @@ export default function App() {
                 color: 'var(--muted)',
                 lineHeight: '1.7',
               }}>
-                Aura automatically respects user preferences:
+                Aura is designed to be unobtrusive:
               </p>
               <ul style={{
                 marginTop: '12px',
                 paddingLeft: '20px',
                 fontSize: '15px',
                 color: 'var(--muted)',
-                lineHeight: '1.7',
+                lineHeight: '2',
               }}>
                 <li>
                   <strong style={{ color: 'var(--foreground)' }}>Touch-only devices:</strong> Automatically skipped when no mouse or trackpad is detected
+                </li>
+                <li>
+                  <strong style={{ color: 'var(--foreground)' }}>Portal-safe:</strong> Works correctly inside iframes, portals, and pop-out windows
+                </li>
+                <li>
+                  <strong style={{ color: 'var(--foreground)' }}>Clean unmount:</strong> All styles and event listeners are removed when the component unmounts
                 </li>
               </ul>
             </section>
