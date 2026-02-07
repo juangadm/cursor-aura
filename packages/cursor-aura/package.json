@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/juangabriel/cursor-aura"
+    "url": "git+https://github.com/juangabriel/cursor-aura.git"
   },
   "homepage": "https://aura.juangabriel.xyz",
   "keywords": [
