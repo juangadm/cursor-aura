@@ -40,7 +40,7 @@ rm -rf apps/web/.next .turbo node_modules/.cache
 ## Architecture Decisions
 
 - **Hidden `<span>` for ownerDocument**: The Aura component renders `<span ref={ref} style={{ display: 'none' }} />` to detect which document it lives in. This makes it portal-proof (works in iframes, portals, pop-out windows).
-- **Style injection via DOM**: Cursor CSS rules are prepended to `<head>` (not rendered as JSX) so consumer stylesheets win at equal specificity. `injectCursorStyles()` returns the style element for media toggling.
+- **Style injection via DOM in `@layer cursor-aura`**: Cursor CSS rules are injected into `<head>` inside `@layer cursor-aura` so consumer styles (layered or unlayered) can override naturally. `injectCursorStyles()` returns the style element for media toggling.
 - **CSS variables on `:root`**: Five `--cursor-*` custom properties drive all cursor styles. This lets the static CSS rules reference variables that update without re-injecting styles.
 - **SVG cursor generation with caching**: `generateThemedCursors()` is memoized by color. Cursors are SVG data URIs with baked-in shadows.
 - **MutationObserver for dynamic themes**: When `color` is a CSS variable like `var(--theme-color)`, the component watches for `class`, `style`, and `data-theme` attribute changes on `<html>` to re-resolve the variable.

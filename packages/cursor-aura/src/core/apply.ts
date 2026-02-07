@@ -64,7 +64,7 @@ const CURSOR_RULES = `
 /**
  * Injects the static cursor CSS rules into <head>.
  * Idempotent: reuses existing element if present.
- * Prepends to <head> so consumer stylesheets win at equal specificity.
+ * Rules are wrapped in @layer cursor-aura so consumer styles can override.
  * Portal-proof: accepts an optional document for correct context in
  * iframes, portals, or pop-out windows.
  */
