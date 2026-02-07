@@ -25,44 +25,46 @@ const CSS_VARS_ACTIVE: ReadonlyArray<{
   { prop: '--cursor-text-active', type: 'text', fallback: 'text' },
 ]
 
-// Static CSS rules referencing custom properties. No !important —
-// prepended to <head> so consumer stylesheets win at equal specificity.
+// Static CSS rules referencing custom properties. No !important.
+// Wrapped in @layer so consumer styles (layered or unlayered) can override.
 const CURSOR_RULES = `
-html, body { cursor: var(--cursor-default); }
-a, button, [role="button"], input[type="submit"], input[type="button"],
-input[type="reset"], input[type="checkbox"], input[type="radio"],
-select, summary, [onclick], [tabindex]:not([tabindex="-1"]) {
-  cursor: var(--cursor-pointer);
-}
-input[type="text"], input[type="email"], input[type="password"],
-input[type="search"], input[type="tel"], input[type="url"],
-input[type="number"], textarea, [contenteditable="true"], [data-cursor="text"] {
-  cursor: var(--cursor-text);
-}
-html:active, body:active { cursor: var(--cursor-default-active); }
-a:active, button:active, [role="button"]:active, input[type="submit"]:active,
-input[type="button"]:active, input[type="reset"]:active,
-input[type="checkbox"]:active, input[type="radio"]:active,
-select:active, summary:active, [onclick]:active,
-[tabindex]:not([tabindex="-1"]):active {
-  cursor: var(--cursor-pointer-active);
-}
-input[type="text"]:active, input[type="email"]:active, input[type="password"]:active,
-input[type="search"]:active, input[type="tel"]:active, input[type="url"]:active,
-input[type="number"]:active, textarea:active, [contenteditable="true"]:active,
-[data-cursor="text"]:active {
-  cursor: var(--cursor-text-active);
-}
-[draggable="true"], .draggable { cursor: var(--cursor-grab); }
-[draggable="true"]:active, .draggable:active, body.dragging {
-  cursor: var(--cursor-grabbing);
+@layer cursor-aura {
+  html, body { cursor: var(--cursor-default); }
+  a, button, [role="button"], input[type="submit"], input[type="button"],
+  input[type="reset"], input[type="checkbox"], input[type="radio"],
+  select, summary, [onclick], [tabindex]:not([tabindex="-1"]) {
+    cursor: var(--cursor-pointer);
+  }
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="search"], input[type="tel"], input[type="url"],
+  input[type="number"], textarea, [contenteditable="true"], [data-cursor="text"] {
+    cursor: var(--cursor-text);
+  }
+  html:active, body:active { cursor: var(--cursor-default-active); }
+  a:active, button:active, [role="button"]:active, input[type="submit"]:active,
+  input[type="button"]:active, input[type="reset"]:active,
+  input[type="checkbox"]:active, input[type="radio"]:active,
+  select:active, summary:active, [onclick]:active,
+  [tabindex]:not([tabindex="-1"]):active {
+    cursor: var(--cursor-pointer-active);
+  }
+  input[type="text"]:active, input[type="email"]:active, input[type="password"]:active,
+  input[type="search"]:active, input[type="tel"]:active, input[type="url"]:active,
+  input[type="number"]:active, textarea:active, [contenteditable="true"]:active,
+  [data-cursor="text"]:active {
+    cursor: var(--cursor-text-active);
+  }
+  [draggable="true"], .draggable { cursor: var(--cursor-grab); }
+  [draggable="true"]:active, .draggable:active, body.dragging {
+    cursor: var(--cursor-grabbing);
+  }
 }
 `
 
 /**
  * Injects the static cursor CSS rules into <head>.
  * Idempotent: reuses existing element if present.
- * Prepends to <head> so consumer stylesheets win at equal specificity.
+ * Rules are wrapped in @layer cursor-aura so consumer styles can override.
  * Portal-proof: accepts an optional document for correct context in
  * iframes, portals, or pop-out windows.
  */

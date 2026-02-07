@@ -68,7 +68,15 @@ Aura automatically respects user preferences:
 
 ## How It Works
 
-Aura generates custom cursor SVGs with baked-in shadows and applies them via CSS custom properties. No runtime overhead — just static CSS after the initial render. It uses `!important` to ensure themed cursors override any existing inline cursor styles, so it works without requiring you to modify your existing code.
+Aura generates custom cursor SVGs with baked-in shadows and applies them via CSS custom properties. No runtime overhead — just static CSS after the initial render.
+
+All cursor rules are injected inside `@layer cursor-aura`, so your own styles (whether unlayered or in a later `@layer`) can override them naturally. If you use Tailwind CSS 4 or another layer-based framework, Aura's cursors won't fight your overrides.
+
+To control layer priority explicitly, declare the layer early in your CSS:
+
+```css
+@layer cursor-aura, base, utilities;
+```
 
 The cursors are based on macOS cursor designs, inspired by [Marcin Wichary](https://aresluna.org/)'s work. They include:
 
