@@ -69,6 +69,10 @@ const CURSOR_PATHS: Record<CursorType, { main: string; highlight: string; viewBo
 // Effective pixel offset = SHADOW_OFFSET * scale
 const SHADOW_OFFSET = 1.33
 
+// Body displacement when pressed — cursor slides toward shadow
+// Shadow stays at full SHADOW_OFFSET; body moves by PRESS_OFFSET
+const PRESS_OFFSET = 0.59
+
 // Cache for generated cursors
 const cursorCache = new Map<string, Record<CursorType, string>>()
 
@@ -77,16 +81,17 @@ const cursorCache = new Map<string, Record<CursorType, string>>()
  * Uses variable scale per cursor type (default: 1.7x, others: 1.5x)
  * @param type - The cursor type
  * @param shadowColor - The shadow color
+ * @param pressed - When true, uses smaller shadow offset for "pressed" feel
  */
-export function generateCursorSVG(type: CursorType, shadowColor: string): string {
+export function generateCursorSVG(type: CursorType, shadowColor: string, pressed = false): string {
   const cursor = CURSOR_PATHS[type]
   const { main, highlight, translate } = cursor
   const [tx, ty] = translate
   const scale = CURSOR_SCALES[type]
-
   // For text cursor - black fill only + matching shadow (no white border)
   if (type === 'text') {
     const textShadowOffset = 1.4
+    const textPressOffset = 0.57
     const scaleX = 0.6  // Squish horizontally for thinner appearance
     // SVG uses scale(x, y) not scaleX() - combine scale and scaleX
     const finalScaleX = scale * scaleX
@@ -94,7 +99,7 @@ export function generateCursorSVG(type: CursorType, shadowColor: string): string
     return `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
       <g transform="translate(${tx} ${ty}) scale(${finalScaleX}, ${finalScaleY})">
         <path d="${main}" fill="${shadowColor}" fill-rule="evenodd" transform="translate(${textShadowOffset}, ${textShadowOffset})"/>
-        <path d="${main}" fill="#000" fill-rule="evenodd"/>
+        <path d="${main}" fill="#000" fill-rule="evenodd"${pressed ? ` transform="translate(${textPressOffset}, ${textPressOffset})"` : ''}/>
       </g>
     </svg>`
   }
@@ -102,11 +107,12 @@ export function generateCursorSVG(type: CursorType, shadowColor: string): string
   // For pointer cursor - same structure as original: black base + white highlight overlay
   // The white highlight sits on top of black main, creating white hand with black edges
   if (type === 'pointer') {
+    const bodyTransform = pressed ? ` transform="translate(${PRESS_OFFSET}, ${PRESS_OFFSET})"` : ''
     return `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
       <g transform="translate(${tx} ${ty}) scale(${scale})">
         <path d="${main}" fill="${shadowColor}" transform="translate(${SHADOW_OFFSET}, ${SHADOW_OFFSET})"/>
-        <path d="${main}" fill="#000"/>
-        <path d="${highlight}" fill="#fff"/>
+        <path d="${main}" fill="#000"${bodyTransform}/>
+        <path d="${highlight}" fill="#fff"${bodyTransform}/>
       </g>
     </svg>`
   }
@@ -121,36 +127,42 @@ export function generateCursorSVG(type: CursorType, shadowColor: string): string
       `<path d="${d}" stroke="${shadowColor}" stroke-linecap="round" stroke-width=".75"/>`
     ).join('')
 
+    const bodyGroupOpen = pressed
+      ? `<g transform="translate(${PRESS_OFFSET}, ${PRESS_OFFSET})">`
+      : '<g>'
     return `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
       <g transform="translate(${tx} ${ty}) scale(${scale})">
         <g transform="translate(${SHADOW_OFFSET}, ${SHADOW_OFFSET})">
           <path d="${main}" fill="${shadowColor}"/>
           ${fingerLineShadows}
         </g>
-        <path d="${main}" fill="#fff"/>
-        <path d="${main}" stroke="#000" stroke-linecap="round" stroke-width=".75" stroke-linejoin="round" fill="none"/>
-        ${fingerLinePaths}
+        ${bodyGroupOpen}
+          <path d="${main}" fill="#fff"/>
+          <path d="${main}" stroke="#000" stroke-linecap="round" stroke-width=".75" stroke-linejoin="round" fill="none"/>
+          ${fingerLinePaths}
+        </g>
       </g>
     </svg>`
   }
 
-  // For grabbing cursor
+  // For grabbing cursor — shadow at full offset, body always shifted (grabbing IS the pressed state)
   if (type === 'grabbing') {
     return `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
       <g transform="translate(${tx} ${ty}) scale(${scale})">
         <path d="${main}" fill="${shadowColor}" transform="translate(${SHADOW_OFFSET}, ${SHADOW_OFFSET})"/>
-        <path d="${main}" fill="#000"/>
-        <path d="${highlight}" fill="#fff"/>
+        <path d="${main}" fill="#000" transform="translate(${PRESS_OFFSET}, ${PRESS_OFFSET})"/>
+        <path d="${highlight}" fill="#fff" transform="translate(${PRESS_OFFSET}, ${PRESS_OFFSET})"/>
       </g>
     </svg>`
   }
 
   // Default arrow cursor - white fill + black stroke
+  const bodyTransform = pressed ? ` transform="translate(${PRESS_OFFSET}, ${PRESS_OFFSET})"` : ''
   return `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
     <g transform="translate(${tx} ${ty}) scale(${scale})">
       <path d="${main}" fill="${shadowColor}" transform="translate(${SHADOW_OFFSET}, ${SHADOW_OFFSET})"/>
-      <path d="${main}" fill="#fff"/>
-      <path d="${main}" stroke="#000" stroke-linecap="round" stroke-width=".75" stroke-linejoin="round" fill="none"/>
+      <path d="${main}" fill="#fff"${bodyTransform}/>
+      <path d="${main}" stroke="#000" stroke-linecap="round" stroke-width=".75" stroke-linejoin="round" fill="none"${bodyTransform}/>
     </g>
   </svg>`
 }
@@ -165,22 +177,24 @@ export function toDataURI(svg: string): string {
 /**
  * Generates all cursor data URIs using the provided shadow color
  * Results are cached for performance
+ * @param pressed - When true, generates cursors with smaller shadow offset
  */
-export function generateThemedCursors(shadowColor: string): Record<CursorType, string> {
+export function generateThemedCursors(shadowColor: string, pressed = false): Record<CursorType, string> {
   // Check cache first
-  const cached = cursorCache.get(shadowColor)
+  const cacheKey = pressed ? `${shadowColor}-pressed` : shadowColor
+  const cached = cursorCache.get(cacheKey)
   if (cached) return cached
 
   const types: CursorType[] = ['default', 'pointer', 'grab', 'grabbing', 'text']
   const cursors: Partial<Record<CursorType, string>> = {}
 
   for (const type of types) {
-    const svg = generateCursorSVG(type, shadowColor)
+    const svg = generateCursorSVG(type, shadowColor, pressed)
     cursors[type] = toDataURI(svg)
   }
 
   const result = cursors as Record<CursorType, string>
-  cursorCache.set(shadowColor, result)
+  cursorCache.set(cacheKey, result)
   return result
 }
 
