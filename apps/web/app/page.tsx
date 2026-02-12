@@ -551,13 +551,27 @@ Docs: https://aura.juangabriel.xyz/getting-started`}</CodeBlock>
             flexWrap: 'wrap',
             gap: '16px',
           }}>
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <img
+                src="https://juangabriel.xyz/favicon.ico"
+                alt=""
+                width={16}
+                height={16}
+                style={{ borderRadius: '2px' }}
+              />
               Made by{' '}
               <a
                 href="https://juangabriel.xyz"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: 'var(--foreground)', fontWeight: '500' }}
+                onMouseEnter={() => setHoveredButton('author')}
+                onMouseLeave={() => setHoveredButton(null)}
+                style={{
+                  color: 'var(--foreground)',
+                  fontWeight: hoveredButton === 'author' ? '500' : '400',
+                  textDecoration: hoveredButton === 'author' ? 'underline' : 'none',
+                  transition: 'font-weight 0.15s ease, text-decoration 0.15s ease',
+                }}
               >
                 Juan Gabriel
               </a>
