@@ -537,54 +537,42 @@ Docs: https://aura.juangabriel.xyz/getting-started`}</CodeBlock>
         {/* Footer */}
         <footer style={{
           padding: '24px',
-          borderTop: '1px solid var(--border)',
           fontSize: '14px',
           color: 'var(--muted)',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
+          justifyContent: 'center',
         }}>
-          <div>
-            Made by{' '}
-            <a
-              href="https://juangabriel.xyz"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: 'var(--foreground)', fontWeight: '500' }}
-            >
-              Juan Gabriel
-            </a>
-            {' · '}
-            Cursor inspired by{' '}
-            <a
-              href="https://aresluna.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: 'var(--foreground)', fontWeight: '500' }}
-            >
-              Marcin Wichary
-            </a>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>v0.1.0</span>
-            <a
-              href="https://www.npmjs.com/package/cursor-aura"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: 'var(--muted)', textDecoration: 'none' }}
-            >
-              npm
-            </a>
-            <a
-              href="https://github.com/juangadm/cursor-aura"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: 'var(--muted)', textDecoration: 'none' }}
-            >
-              GitHub
-            </a>
+          <div style={{
+            width: '100%',
+            maxWidth: '500px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}>
+            <div>
+              Made by{' '}
+              <a
+                href="https://juangabriel.xyz"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--foreground)', fontWeight: '500' }}
+              >
+                Juan Gabriel
+              </a>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <span style={{ fontSize: '12px', fontFamily: 'monospace' }}>v0.1.0</span>
+              <a
+                href="https://www.npmjs.com/package/cursor-aura"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: 'var(--muted)', textDecoration: 'none' }}
+              >
+                npm
+              </a>
+            </div>
           </div>
         </footer>
       </div>
