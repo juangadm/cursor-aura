@@ -3,7 +3,11 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Aura - Themed cursor shadows for the web',
+  metadataBase: new URL('https://aura.juangabriel.xyz'),
+  title: {
+    default: 'Aura - Themed cursor shadows for the web',
+    template: '%s | Aura',
+  },
   description: 'Add beautiful themed cursor shadows to your website. Your cursor is the most-used element on your site. Make it feel intentional.',
   openGraph: {
     title: 'Aura - Themed cursor shadows for the web',
@@ -16,6 +20,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Aura - Themed cursor shadows for the web',
     description: 'Add beautiful themed cursor shadows to your website.',
+  },
+  alternates: {
+    canonical: '/',
   },
 }
 
@@ -36,6 +43,26 @@ export default function RootLayout({
             if (t) document.documentElement.setAttribute('data-theme', t);
           } catch(e) {}
         `}} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'SoftwareSourceCode',
+              name: 'Aura',
+              description: 'Themed cursor shadows for the web. Replaces default browser cursors with macOS-style SVG cursors that have colored drop shadows.',
+              url: 'https://aura.juangabriel.xyz',
+              codeRepository: 'https://github.com/juangadm/cursor-aura',
+              programmingLanguage: ['TypeScript', 'React'],
+              runtimePlatform: 'Browser',
+              author: {
+                '@type': 'Person',
+                name: 'Juan Gabriel',
+                url: 'https://juangabriel.xyz',
+              },
+            }),
+          }}
+        />
       </head>
       <body>
         {children}
