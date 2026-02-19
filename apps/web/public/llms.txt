@@ -1,0 +1,31 @@
+# Aura
+
+> Themed cursor shadows for the web. An npm package that replaces default browser cursors with macOS-style SVG cursors that have colored drop shadows.
+
+Aura works with React and vanilla JavaScript. It generates custom SVG cursors with baked-in shadows and applies them via CSS custom properties. No runtime overhead — just static CSS after the initial render.
+
+## Installation
+
+    npm install cursor-aura
+
+## React
+
+    import { Aura } from 'cursor-aura'
+
+    <Aura color="#0C3EFF" />
+
+Accepts hex, rgb, hsl, or a CSS variable like `var(--theme-color)`.
+
+## Vanilla JS
+
+    import { AuraVanilla as Aura } from 'cursor-aura/vanilla'
+
+    Aura.init({ color: '#0C3EFF' })
+    Aura.setColor('#FF6183')
+    Aura.destroy()
+
+## Links
+
+- [Documentation](https://aura.juangabriel.xyz/getting-started)
+- [GitHub](https://github.com/juangadm/cursor-aura)
+- [npm](https://www.npmjs.com/package/cursor-aura)
