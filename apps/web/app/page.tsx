@@ -554,7 +554,7 @@ Docs: https://aura.juangabriel.xyz/getting-started`}</CodeBlock>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <img
                 src="https://juangabriel.xyz/favicon.ico"
-                alt=""
+                alt="Juan Gabriel"
                 width={16}
                 height={16}
                 style={{ borderRadius: '2px' }}
