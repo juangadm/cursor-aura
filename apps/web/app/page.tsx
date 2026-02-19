@@ -191,14 +191,14 @@ export default function Home() {
 
             {/* Colors Section */}
             <section style={{ marginBottom: '64px' }}>
-              <h3 style={{
+              <h2 style={{
                 fontSize: '15px',
                 fontWeight: '600',
                 color: 'var(--foreground)',
                 marginBottom: '8px',
               }}>
                 Colors
-              </h3>
+              </h2>
               <p style={{
                 fontSize: '14px',
                 color: 'var(--muted)',
@@ -247,14 +247,14 @@ export default function Home() {
 
             {/* Hover Section */}
             <section style={{ marginBottom: '64px' }}>
-              <h3 style={{
+              <h2 style={{
                 fontSize: '15px',
                 fontWeight: '600',
                 color: 'var(--foreground)',
                 marginBottom: '8px',
               }}>
                 Hover
-              </h3>
+              </h2>
               <p style={{
                 fontSize: '14px',
                 color: 'var(--muted)',
@@ -284,14 +284,14 @@ export default function Home() {
 
             {/* Drag Section */}
             <section style={{ marginBottom: '64px' }}>
-              <h3 style={{
+              <h2 style={{
                 fontSize: '15px',
                 fontWeight: '600',
                 color: 'var(--foreground)',
                 marginBottom: '8px',
               }}>
                 Drag
-              </h3>
+              </h2>
               <p style={{
                 fontSize: '14px',
                 color: 'var(--muted)',
@@ -410,14 +410,14 @@ export default function Home() {
 
             {/* Highlight Section */}
             <section style={{ marginBottom: '64px' }}>
-              <h3 style={{
+              <h2 style={{
                 fontSize: '15px',
                 fontWeight: '600',
                 color: 'var(--foreground)',
                 marginBottom: '8px',
               }}>
                 Highlight
-              </h3>
+              </h2>
               <p
                 data-cursor="text"
                 style={{
