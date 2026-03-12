@@ -3,5 +3,13 @@
   "buildCommand": "npm run build -- --filter=aura-web",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://aura.juangabriel.org/$1",
+      "statusCode": 301,
+      "has": [{ "type": "header", "key": "host", "value": "aura.juangabriel.xyz" }]
+    }
+  ]
 }
